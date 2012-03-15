@@ -42,6 +42,7 @@ print '|  _ \\ _   _  ___| | _|  _ \\ _   _  ___| | __/ ___| ___'."\n";
 print '| | | | | | |/ __| |/ / | | | | | |/ __| |/ / |  _ / _ \\'."\n";
 print '| |_| | |_| | (__|   <| |_| | |_| | (__|   <| |_| | (_) |'."\n";
 print '|____/ \\__,_|\\___|_|\\_\\____/ \\__,_|\\___|_|\\_\\\\____|\\___/'."\n";
+print '========================================================='."\n";
 
 my $_cpanm;
 my $_cpanm_filename;
@@ -115,7 +116,7 @@ unless ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERLBREW_PATH}) {
 my $cpanm = `which cpanm`;
 
 unless ($cpanm) {
-	print "\nInstalling cpanminus ...\n\n";
+	print_text("Installing cpanminus ...","");
 	cpanminus_install_error() if (system(cpanminus()." -n App::cpanminus"));
 }
 
@@ -125,7 +126,9 @@ print_text(
 	"",
 );
 
-cpanminus_install_error() if (system('cpanm namespace::autoclean App::DuckPAN'));
+cpanminus_install_error() if (system('cpanm -n namespace::autoclean Moose'));
+cpanminus_install_error() if (system('cpanm NANIS/Crypt-SSLeay-0.59_03.tar.gz'));
+cpanminus_install_error() if (system('cpanm App::DuckPAN'));
 
 print_text(
 	"Installing DDG...",
@@ -155,7 +158,7 @@ print_text(
 sub cpanminus_install_error {
 	print_text(
 		"[ERROR] Failure on install of modules!",
-		"This could have several reasons, for first you can just restart this installer, cause it could be a pure download problem. If this isnt the case, please read the build.log mentioned on the errors and see if you can fix the problem yourself. Otherwise, please report the problem via email to use at open\@duckduckgo.com with the build.log attached.",
+		"This could have several reasons, for first you can just restart this installer, cause it could be a pure download problem. If this isnt the case, please read the build.log mentioned on the errors and see if you can fix the problem yourself. Otherwise, please report the problem via email to use at open\@duckduckgo.com with the build.log attached. If there is no build.log mentioned, just attach the output you see.",
 		""
 	);
 	exit 1;	

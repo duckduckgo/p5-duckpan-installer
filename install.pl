@@ -21,15 +21,19 @@ use File::Temp qw/ tempfile tempdir /;
 use HTTP::Tiny;
 
 if (lc($^O) eq 'mswin32') {
-	print "\n[ERROR] We dont support Win32.. sorry :(\n\n";
+	print_text(
+		"",
+		"[ERROR] We dont support Win32.. sorry :(",
+		""
+	);
 	exit 1;
 } elsif (lc($^O) ne 'linux') {
-	print_text("[WARNING] We dont support anything else then Linux, but you may try, if you want, but please consider getting some Linux system on trouble, for example a virtual machine with vmware or virtualbox, or a cloud server at linode or amazon (they have a free micro instance for a year).","");
-	print "Please wait 10 sec. or stop with Ctrl-C: ";
-	for (1..10) {
-		print "."; sleep 1;
-	}
-	print "\n\n";
+	print_text(
+		"",
+		"[WARNING] We dont support anything else then Linux, but you may try, if you want, but please consider getting some Linux system on trouble, for example a virtual machine with vmware or virtualbox, or a cloud server at linode or amazon (they have a free micro instance for a year). You can stop the installation with Ctrl-C now if you dont wanna try it.",
+		""
+	);
+	print_wait(10);
 }
 
 print "\n";
@@ -47,13 +51,16 @@ my $set_locallib;
 
 if ($locallib) {
 
-	print "\nFound running local::lib on ".$locallib."\n";
+	print_text("Found running local::lib on ".$locallib);
 
 } else {
 
-	print "\n\n";
 	$set_locallib = $ENV{HOME}.'/perl5';
-	print "\nInstalling local::lib and App::cpanminus to ".$set_locallib."...\n";
+	print_text(
+		"",
+		"Installing local::lib and App::cpanminus to ".$set_locallib."...",
+		""
+	);
 	cpanminus_install_error() if (system(cpanminus()." -n -l ".$set_locallib." local::lib App::cpanminus"));
 
 	my $bashrc = File::Spec->catfile($ENV{HOME},'.bashrc');
@@ -67,9 +74,9 @@ if ($locallib) {
 		my @found = grep { chomp($_); $_ eq $extraline } <$bfh_read>;
 
 		if (@found) {
-			print "\nFound entry for local::lib in .bashrc\n";
+			print_text("Found entry for local::lib in .bashrc");
 		} else {
-			print "\nAdding entry for local::lib to .bashrc\n";
+			print_text("Adding entry for local::lib to .bashrc");
 			print $bfh_write "\n\n";
 			print $bfh_write "# added by duckpan installer\n";
 			print $bfh_write $extraline;
@@ -78,8 +85,6 @@ if ($locallib) {
 
 		close($bfh_read);
 		close($bfh_write);
-
-		print "\n";
 
 	} else {
 
@@ -91,21 +96,18 @@ if ($locallib) {
 			""
 		);
 
-		print "Please wait 5 sec.: ";
-		for (1..5) {
-			print "."; sleep 1;
-		}
-		print "\n\n";
+		print_wait(5);
 
 	}
 
 }
 
 unless ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERLBREW_PATH}) {
-	print "\n============================================================\n";
-	print "\nlocal::lib (or perlbrew) is not active, if you just have";
-	print "\ninstalled it, please relogin to your account and just start";
-	print "\nthis installer like you did now!\n\n";
+	print_text(
+		"============================================================",
+		"local::lib (or perlbrew) is not active, if you just have installed it, please relogin to your account and just start this installer again like you did now!",
+		"",
+	);
 	exit 1;
 }
 
@@ -117,17 +119,23 @@ unless ($cpanm) {
 	cpanminus_install_error() if (system(cpanminus()." -n App::cpanminus"));
 }
 
-print "\nInstalling App::DuckPAN...\n";
-print "\n[WARNING] This may take a while :-)\n\n";
+print_text(
+	"Installing App::DuckPAN...",
+	"[WARNING] This may take a while :-)",
+	"",
+);
 
 cpanminus_install_error() if (system('cpanm namespace::autoclean App::DuckPAN'));
 
-print "\nInstalling DDG...\n";
-print "\n[WARNING] This may take a while :-)\n\n";
+print_text(
+	"Installing DDG...",
+	"[WARNING] This may take a while :-)",
+	"",
+);
 
 cpanminus_install_error() if (system('duckpan DDG'));
 
-print "\nChecking other requirements ...\n\n";
+print_text("Checking other requirements ...","");
 if (system("duckpan check")) {
 	print_text(
 		"",
@@ -153,6 +161,15 @@ sub cpanminus_install_error {
 	exit 1;	
 }
 
+sub print_wait {
+	my $no = shift;
+	print "Please wait ".$no." sec.: ";
+	for (1..$no) {
+		print "."; sleep 1;
+	}
+	print "\n\n";
+}
+
 sub print_text {
 	for (@_) {
 		print "\n";
@@ -173,10 +190,11 @@ sub print_text {
 
 sub cpanminus {
 	unless ($_cpanm) {
-		print "\nFetching cpanminus from http://cpanmin.us/ ...\n";
+		my $cpanm_url = 'http://duckpan.org/cpanm';
+		print "\nFetching cpanminus from ".$cpanm_url." ...\n";
 		($_cpanm, $_cpanm_filename) = tempfile();
 		my $http = HTTP::Tiny->new;
-		my $response = $http->get('http://cpanmin.us/');
+		my $response = $http->get($cpanm_url);
 
 		unless ($response->{success}) {
 			print "\nDownloading of cpanminus failed! Please try again later!\n";

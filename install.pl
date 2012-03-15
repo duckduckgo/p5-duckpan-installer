@@ -36,6 +36,15 @@ if (lc($^O) eq 'mswin32') {
 	print_wait(10);
 }
 
+if (getpwnam($ENV{USER}) == 0) {
+	print_text(
+		"",
+		"[ERROR] DO NOT DO THIS AS ROOT! PLEASE USE A NORMAL USER ACCOUNT!",
+		""
+	);
+	exit 1;	
+}
+
 print "\n";
 print ' ____             _    ____             _     ____'."\n";
 print '|  _ \\ _   _  ___| | _|  _ \\ _   _  ___| | __/ ___| ___'."\n";
@@ -155,14 +164,6 @@ print_text(
 	""
 );
 
-sub cpanminus_install_error {
-	print_text(
-		"[ERROR] Failure on install of modules!",
-		"This could have several reasons, for first you can just restart this installer, cause it could be a pure download problem. If this isnt the case, please read the build.log mentioned on the errors and see if you can fix the problem yourself. Otherwise, please report the problem via email to use at open\@duckduckgo.com with the build.log attached. If there is no build.log mentioned, just attach the output you see.",
-		""
-	);
-	exit 1;	
-}
 
 sub print_wait {
 	my $no = shift;

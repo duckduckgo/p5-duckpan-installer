@@ -47,14 +47,13 @@ print '========================================================='."\n";
 my $_cpanm;
 my $_cpanm_filename;
 
-my $locallib = $ENV{PERL_LOCAL_LIB_ROOT};
 my $set_locallib;
 
-if ($locallib) {
+if ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERL_MM_OPT} || $ENV{PERL_MB_OPT}) {
 
-	print_text("Found running local::lib on ".$locallib);
+	print_text("Found running local::lib...");
 
-} else {
+} elsif (!defined $ENV{PERLBREW_PATH}) {
 
 	$set_locallib = $ENV{HOME}.'/perl5';
 	print_text(
@@ -103,10 +102,10 @@ if ($locallib) {
 
 }
 
-unless ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERLBREW_PATH}) {
+unless ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERL_MM_OPT} || $ENV{PERL_MB_OPT} || $ENV{PERLBREW_PATH}) {
 	print_text(
 		"============================================================",
-		"local::lib (or perlbrew) is not active, if you just have installed it, please relogin to your account and just start this installer again like you did now!",
+		"local::lib (or perlbrew) is not active. If you ran this script for the first time, please now re-login to your user account and run it again!",
 		"",
 	);
 	exit 1;
@@ -126,6 +125,7 @@ print_text(
 	"",
 );
 
+cpanminus_install_error() if (system('cpanm Module::Finder Module::Extract::VERSION'));
 cpanminus_install_error() if (system('cpanm -n namespace::autoclean Moose'));
 cpanminus_install_error() if (system('cpanm NANIS/Crypt-SSLeay-0.59_03.tar.gz'));
 cpanminus_install_error() if (system('cpanm App::DuckPAN'));

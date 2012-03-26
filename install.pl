@@ -70,7 +70,7 @@ if ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERL_MM_OPT} || $ENV{PERL_MB_OPT}) {
 		"Installing local::lib and App::cpanminus to ".$set_locallib."...",
 		""
 	);
-	cpanminus_install_error() if (system(cpanminus()." -n -l ".$set_locallib." local::lib App::cpanminus"));
+	cpanminus_install_error() if (system("perl ".cpanminus()." -n -l ".$set_locallib." local::lib App::cpanminus"));
 
 	my $bashrc = File::Spec->catfile($ENV{HOME},'.bashrc');
 	my $extraline = 'eval $(perl -I'.$set_locallib.'/lib/perl5 -Mlocal::lib)';
@@ -125,7 +125,7 @@ my $cpanm = `which cpanm`;
 
 unless ($cpanm) {
 	print_text("Installing cpanminus ...","");
-	cpanminus_install_error() if (system(cpanminus()." -n App::cpanminus"));
+	cpanminus_install_error() if (system("perl ".cpanminus()." -n App::cpanminus"));
 }
 
 print_text(

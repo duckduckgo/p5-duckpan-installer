@@ -136,7 +136,24 @@ print_text(
 
 cpanminus_install_error() if (system('cpanm Module::Finder Module::Extract::VERSION'));
 cpanminus_install_error() if (system('cpanm -n namespace::autoclean Moose'));
-cpanminus_install_error() if (system('cpanm NANIS/Crypt-SSLeay-0.59_03.tar.gz'));
+
+if ( eval { system('cpanm NANIS/Crypt-SSLeay-0.59_03.tar.gz') } ) {
+        print_text(
+            "",
+            "--------------------------------------",
+            "",
+            "[ERROR] There was an error installing Crypt::SSLeay.",
+            "Crypt::SSLeay needs the package libssl-dev to install properly. If you don't have this package installed on your system, it could be why you're seeing this error. To install it on Debian or Ubuntu, run:",
+           "sudo apt-get install libssl-dev",
+           "This may have just been a download error. If you're unsure, try running this script again.",
+            "",
+            "--------------------------------------",
+            ""
+        );
+
+        exit 1;
+}
+
 cpanminus_install_error() if (system('cpanm App::DuckPAN'));
 
 print_text(

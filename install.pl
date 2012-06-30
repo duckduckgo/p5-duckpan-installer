@@ -73,7 +73,7 @@ if ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERL_MM_OPT} || $ENV{PERL_MB_OPT}) {
     cpanminus_install_error() if (system("perl ".cpanminus()." -n -l ".$set_locallib." local::lib App::cpanminus"));
     my $bash_conf_file = lc($^O) eq "darwin" ? '.bash_profile' : '.bashrc';
     my $bashrc = File::Spec->catfile($ENV{HOME}, $bash_conf_file);
-    my $extraline = 'eval $(perl -I'.$set_locallib.'/lib/perl5 -Mlocal::lib)';
+    my $extraline = 'eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)';
     
     if ($ENV{SHELL} eq '/bin/bash') {
 	

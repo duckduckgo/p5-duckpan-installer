@@ -137,7 +137,7 @@ print_text(
 cpanminus_install_error() if (system('cpanm Module::Finder Module::Extract::VERSION'));
 cpanminus_install_error() if (system('cpanm -n namespace::autoclean Moose'));
 
-if ( eval { system('cpanm NANIS/Crypt-SSLeay-0.59_03.tar.gz') } ) {
+if ( eval { system('cpanm Crypt::SSLeay') } ) {
         print_text(
             "",
             "--------------------------------------",
@@ -153,6 +153,8 @@ if ( eval { system('cpanm NANIS/Crypt-SSLeay-0.59_03.tar.gz') } ) {
 
         exit 1;
 }
+
+cpanminus_install_error() if (system('cpanm --notest Starman'));
 
 cpanminus_install_error() if (system('cpanm App::DuckPAN'));
 

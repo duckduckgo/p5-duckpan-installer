@@ -27,19 +27,25 @@ if (lc($^O) eq 'mswin32') {
 	""
 	);
     exit 1;
+} elsif (lc($^O) eq 'darwin'){
+	print_text(
+	"",
+	"[WARNING] Mac OS is not officially supported but should be OK. More details available at https://github.com/duckduckgo/p5-app-duckpan#disclaimer",
+	""
+	)
 } elsif (lc($^O) ne 'linux') {
     print_text(
 	"",
-	"[WARNING] We don't support anything other than Linux, but you can try if you're determined. Please consider getting some sort of Linux system, e.g. a virtual machine with VMware or VirtualBox, or a cloud server at linode or amazon (amazon has a free micro instance for a year). You can stop the installation with Ctrl-C now if you don't want to try the install. If you're having a lot of trouble getting duckpan to work with other operating systems, ask us on IRC at #duckduckgo",
+	"[WARNING] Linux is the only officially supported operating system. You're welcome to try installing DuckPAN, and if you're successfull please let us know! You can stop the installation with Ctrl-C now if you don't want to try the install. More details available at https://github.com/duckduckgo/p5-app-duckpan#disclaimer",
 	""
 	);
-    print_wait(10);
+    print_wait(5);
 }
 
 if (getpwnam($ENV{USER}) == 0) {
     print_text(
 	"",
-	"[ERROR] DO NOT DO THIS AS ROOT! PLEASE USE A NORMAL USER ACCOUNT!",
+	"[ERROR] DO NOT RUN THIS AS ROOT! PLEASE USE A NORMAL USER ACCOUNT!",
 	""
 	);
     exit 1;
@@ -59,9 +65,9 @@ my $_cpanm_filename;
 my $set_locallib;
 
 if ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERL_MM_OPT} || $ENV{PERL_MB_OPT}) {
-    
+
     print_text("Found running local::lib...");
-    
+
 } elsif (!defined $ENV{PERLBREW_PATH}) {
 
     $set_locallib = $ENV{HOME}.'/perl5';
@@ -74,20 +80,20 @@ if ($ENV{PERL_LOCAL_LIB_ROOT} || $ENV{PERL_MM_OPT} || $ENV{PERL_MB_OPT}) {
     my $bash_conf_file = lc($^O) eq "darwin" ? '.bash_profile' : '.bashrc';
     my $bashrc = File::Spec->catfile($ENV{HOME}, $bash_conf_file);
     my $extraline = 'eval $(perl -I${HOME}/perl5/lib/perl5 -Mlocal::lib)';
-    
+
     if ($ENV{SHELL} eq '/bin/bash') {
-	
+
 	open(my $bfh_read,'<', $bashrc);
 	open(my $bfh_write,'>>', $bashrc);
-	
+
 	my @found = grep { chomp($_); $_ eq $extraline } <$bfh_read>;
-	
+
 	if (@found) {
 	    print_text("Found entry for local::lib in $bash_conf_file");
 	} else {
 	    print_text("Adding entry for local::lib to $bash_conf_file");
 	    print $bfh_write "\n\n";
-	    print $bfh_write "# added by duckpan installer\n";
+	    print $bfh_write "# added by DuckPAN installer\n";
 	    print $bfh_write $extraline;
 	    print $bfh_write "\n\n";
 	}
@@ -136,24 +142,6 @@ print_text(
 
 cpanminus_install_error() if (system('cpanm Module::Finder Module::Extract::VERSION'));
 cpanminus_install_error() if (system('cpanm -n namespace::autoclean Moose'));
-
-if ( eval { system('cpanm Crypt::SSLeay') } ) {
-        print_text(
-            "",
-            "--------------------------------------",
-            "",
-            "[ERROR] There was an error installing Crypt::SSLeay.",
-            "Crypt::SSLeay needs the package libssl-dev to install properly. If you don't have this package installed on your system, it could be why you're seeing this error. To install it on Debian or Ubuntu, run:",
-           "sudo apt-get install libssl-dev",
-           "This may have just been a download error. If you're unsure, try running this script again.",
-            "",
-            "--------------------------------------",
-            ""
-	    );
-
-        exit 1;
-}
-
 cpanminus_install_error() if (system('cpanm --notest Starman'));
 
 cpanminus_install_error() if (system('cpanm App::DuckPAN'));
@@ -179,17 +167,17 @@ if (system("duckpan check")) {
 
 print_text(
     "============================================================",
-    "Read our other tutorials for the next steps.",
+    "CONGRATS! DuckPAN has installed and you're now ready to move on. Please visit https://duck.co/duckduckhack/setup_dev_environment#sign-up-for-a-github-account to continue!",
     ""
     );
 
 sub cpanminus_install_error {
 	print_text(
 		"[ERROR] Failure on install of modules!",
-		"This could have several reasons, for first you can just restart this installer, cause it could be a pure download problem. If this isnt the case, please read the build.log mentioned on the errors and see if you can fix the problem yourself. Otherwise, please report the problem via email to use at open\@duckduckgo.com with the build.log attached. If there is no build.log mentioned, just attach the output you see.",
+		"This could have several reasons. First, you can just restart this installer, because it could be a pure download problem. If this isn't the case, please read the build.log mentioned in the errors and see if you can fix the problem yourself. Otherwise, please report the problem via email to open\@duckduckgo.com with the build.log attached. If there is no build.log mentioned, just attach the output you see.",
 		""
 	);
-	exit 1;	
+	exit 1;
 }
 
 sub print_wait {
@@ -245,62 +233,3 @@ sub cpanminus {
 1;
 
 __END__
-
-    my $github = prompt("Your GitHub username?");
-print "\n";
-unless (length $github) {
-    print_text("This is not a valid GitHub username, please restart the installer.", "");
-    exit 1;
-}
-
-if (<$ENV{HOME}/.ssh/id_*.pub>) {
-    print_text("Found a public ssh key, I assume you know what you are doing.");
-} else {
-    print_text("Can't find a public ssh key, assuming that you don't have one yet","");
-    my $genkey = prompt("Do you want me to generate a key for you?","yes");
-    if (lc($genkey) eq 'yes') {
-	print_text(
-	    "",
-	    "Follow the instructions of the ssh key generator. We suggest that you don't set a passphrase and dont change the suggestion filename for the generated key",
-	    ""
-	    );
-	if (system('ssh-keygen')) {
-	    print_text("There was a failure on during the generation of the ssh key -- if you can't solve it, please email us at open\@duckduckgo.com");
-	    exit 1;
-	}
-	print_text(
-	    "",
-	    "Now add the generated key to your GitHub account at the URL:",
-	    "https://github.com/settings/ssh",
-	    "Your key is:",
-	    `cat $ENV{HOME}/.ssh/id_rsa.pub`,
-	    ""
-	    );
-    }
-}
-
-print "\n";
-my $zcig = prompt("Clone to which directory?",$ENV{HOME}.'/zeroclickinfo-goodies');
-print "\n";
-my $giturl = "git\@github.com:".$github."/zeroclickinfo-goodies.git";
-
-if (-d $zcig) {
-    print "\nDirectory already exist, assuming you have cloned already...\n";
-} else {
-    print "\nCloning zeroclickinfo-goodies...\n";
-
-    if (system('git clone '.$giturl.' '.$zcig)) {
-	print "\n\nFailure on cloning! Please fix the problem, or email us";
-	print "\nat open\@duckduckgo.com with the screen output attached\n";
-	exit 1;
-    }
-}
-
-chdir($zcig);
-
-print "\nInstalling Distribution requirements...\n";
-print "\n[WARNING] This may take a while :-)\n\n";
-
-cpanminus_install_error() if (system('dzil authordeps --missing | cpanm'));
-cpanminus_install_error() if (system('dzil listdeps --missing | cpanm'));
-
